@@ -1,0 +1,43 @@
+docker build -t tabpfn_cad -f Dockerfile.tabfpn_cad1.0 .
+docker run -it -v "/mnt/c/Users/GJJ/":/workspace -v "/mnt/c/Users/GJJ/Gjj Doc/Code/git/.ssh:/root/.ssh:ro" -p 8888:8888 --rm --gpus all tabpfn_cad /bin/bash -c "cd /workspace/'Gjj Doc'/Code && /bin/bash /start_jupyter.sh && exec /bin/bash"
+
+
+python s2.1_dedup_family_occ.py "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+python s2.2_dedup_family_occ.py "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+python s2.3_dedup_family_occ.py "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+
+python s2.3.1_dedup_family_occ.py "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+python s2.3.2_dedup_family_occ.py "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+
+python s3_domain_and_timestamp.py --config "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+
+python s4_make_splits.py --config "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+python check_s4_leakage.py
+
+python s5_candidate.py --config "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+python check_s5.py --config "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+
+python s6_run.py --config "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json"
+PYTHONUNBUFFERED=1 python -u check_s6.py \
+  --config "/workspace/Gjj Doc/Code/CAD_TabPFN/config.json" \
+  --s6-root "/workspace/Gjj Local/data/CAD/step_out/s6_out" \
+  --s4-root "/workspace/Gjj Local/data/CAD/step_out/s4_out" \
+  --candidates-root "/workspace/Gjj Local/data/CAD/step_out/s6_out/candidates" \
+  --workers 12 --multiplier 3 --soft-timeout 20 --hard-timeout 40 --watchdog-sec 3 \
+  --err-log ./tmp/s6_count_errors.log --cache ./tmp/.jsonl_count_cache.json 2>&1 | tee ./tmp/s6_audit.log
+
+
+python check_part_index_for_split.py \
+  --input "/workspace/Gjj Local/data/CAD/step_out/s2_out/part_index.for_split.csv" \
+  --outdir "/workspace/Gjj Local/data/CAD/step_out/s2_out/audit_output"
+
+
+bash "/workspace/Gjj Doc/Code/Tools/list_dir_structure.sh" "/workspace/Gjj Local/data/CAD/step_out/s4_out" all
+bash "/workspace/Gjj Doc/Code/Tools/list_dir_structure.sh" "/workspace/Gjj Local/data/CAD/step_out/s5_out" dirs
+
+step_out/s5_out/lodo/split_0/test
+
+conda env export --no-builds > environment.yml
+
+
+

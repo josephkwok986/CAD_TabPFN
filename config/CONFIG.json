@@ -1,0 +1,210 @@
+{
+  "version": "1.0",
+  "timestamp_utc": "2025-09-21T00:00:00Z",
+  "timezone": "Europe/London",
+  "policy": {
+    "label_policy": "Public-only gold labels; no new annotations",
+    "risk_budget_beta": 0.01,
+    "units": { "length": "mm", "angle": "degree", "preserve_original_unit_field": true }
+  },
+  "hardware": {
+    "host": {
+      "os": "Ubuntu 18.04.6 LTS (WSL2)",
+      "kernel": "6.6.87.2-microsoft-standard-WSL2",
+      "cpu": "Intel Core Ultra 9 275HX (24 logical cores)",
+      "ram_gib": 7.4,
+      "swap_gib": 2,
+      "gpu": "NVIDIA GeForce RTX 5070 Ti Laptop (~12 GiB)",
+      "nvidia_smi": "575.60",
+      "driver_version": "576.65",
+      "cuda_version": "12.9",
+      "docker": {
+        "engine": "28.3.0",
+        "desktop": "4.43.1",
+        "containerd": "1.7.27",
+        "runc": "1.2.5",
+        "default_runtime": "runc",
+        "available_runtimes": ["runc", "nvidia"]
+      },
+      "nvidia_container_toolkit": "1.13.5",
+      "mirror_accelerators_enabled": true
+    },
+    "container": {
+      "os": "Ubuntu 22.04.5 LTS",
+      "python": "3.10.18",
+      "conda_env": "tabpfn",
+      "glibc": "2.35",
+      "env": {
+        "CONDA_DEFAULT_ENV": "tabpfn",
+        "CONDA_PREFIX": "/root/miniconda3/envs/tabpfn",
+        "PYTHONPATH": "/workspace/Gjj Doc/Code/PFNs:/workspace/Gjj Doc/Code/TabPFN:/workspace/Gjj Doc/Code/tabpfn-extensions:",
+        "CUDA_VERSION": "12.9.0",
+        "DRIVER_VERSION": "576.65",
+        "NVIDIA_VISIBLE_DEVICES": "all"
+      },
+      "dl_stack": {
+        "torch": "2.9.0.dev20250826+cu128",
+        "pytorch_triton": "3.4.0+gitf7888497",
+        "onnx": "1.19.0",
+        "nvidia_cuda_runtime_cu12": "12.8.90",
+        "nvidia_cuda_nvrtc_cu12": "12.8.93",
+        "nvidia_cuda_cupti_cu12": "12.8.90"
+      },
+      "cuda_toolchain": { "nvcc": false, "libcuda_so": true }
+    },
+    "gpu_requirements": {
+      "require_devices": true,
+      "docker_flag": "--gpus all",
+      "fallback_cpu_allowed": true,
+      "must_annotate_cpu_only_results": true
+    }
+  },
+  "datasets": [
+    {
+      "name": "MFInstSeg",
+      "type": "instance-level",
+      "version": "<to_fill>",
+      "download_url": "https://ai-studio-online.bj.bcebos.com/v1/287cc80a4feb4a838616e8ba6d9e4e4ee499a27ff7534f4c924c3daafbddb9de?responseContentDisposition=attachment%3Bfilename%3Ddata2.zip&authorization=bce-auth-v1%2F5cfe9a5e1454405eb2a975c43eace6ec%2F2025-09-21T10%3A59%3A10Z%2F60%2F%2F3c5b07f726a6723398bc778b4addd00b1326e0a220dd450937b96391a2430e23",
+      "web" : "https://aistudio.baidu.com/datasetdetail/211864?lang=en",
+      "sha256": "<to_fill>",
+      "local_dir": "raw/MFInstSeg",
+      "license": "<to_fill>"
+    },
+    {
+      "name": "MFCAD",
+      "type": "face-level aggregated to instance-level",
+      "version": "<to_fill>",
+      "download_url": "https://ai-studio-online.bj.bcebos.com/v1/9cbf2bc8f8b3431a9e389142a43220bf58c6e580da2e433493d6d0b8e269bc94?responseContentDisposition=attachment%3Bfilename%3Ddataset.zip&authorization=bce-auth-v1%2F5cfe9a5e1454405eb2a975c43eace6ec%2F2025-09-21T11%3A16%3A10Z%2F60%2F%2F8b00e76338c33c791141368151ec536973cd95d9f0fbf1a3805b0a4ea3f79224",
+      "web" : "https://aistudio.baidu.com/datasetdetail/207373?lang=en",
+      "sha256": "<to_fill>",
+      "local_dir": "raw/MFCAD",
+      "license": "<to_fill>"
+    },
+    {
+      "name": "MFCAD++",
+      "type": "face-level aggregated to instance-level",
+      "version": "<to_fill>",
+      "download_url": "https://ai-studio-online.bj.bcebos.com/v1/d536fa960eea4bdd8ade5bf60d64bdb0a69d633672e640239be3f5f63a94d23f?responseContentDisposition=attachment%3Bfilename%3DMFCAD2.zip&authorization=bce-auth-v1%2F5cfe9a5e1454405eb2a975c43eace6ec%2F2025-09-21T11%3A16%3A50Z%2F60%2F%2F933439b861756264a7b5644c274932a54172edefda4937a530bbba640c4ca505",
+      "web" : "https://aistudio.baidu.com/datasetdetail/207819?lang=en",
+      "sha256": "<to_fill>",
+      "local_dir": "raw/MFCADpp",
+      "license": "<to_fill>"
+    }
+  ],
+  "splitting_protocols": {
+    "lodo": {
+      "domain_field": "source_domain",
+      "description": "Leave-One-Domain-Out based on source/kernel/repo/author",
+      "calibration_split": "held-out from training domains"
+    },
+    "time_out": {
+      "timestamp_field": "timestamp",
+      "ordering": "old_to_new",
+      "fallback": "cross-dataset as temporal proxy if true timestamps absent"
+    },
+    "deduplication": {
+      "part_level": true,
+      "fingerprint": ["surface_type_sequence", "global_voxel_signature", "principal_scales"]
+    },
+    "family_leakage_prevention": {
+      "family_id_field": "family_id",
+      "rule": "a family appears in only one side (train/calib/test)"
+    }
+  },
+  "method_switches": {
+    "candidate_recall_target": 0.98,
+    "refiner_quantiles": [0.1, 0.5, 0.9],
+    "conformal_stratification": ["domain", "typicality_bucket"],
+    "tab_backend": ["CatBoost", "XGBoost"],
+    "few_shot_baseline": "TabPFN",
+    "calibration": ["temperature", "isotonic_dirichlet"],
+    "typicality_main": "kNN_percentile",
+    "typicality_ablation": ["Mahalanobis", "GMM"],
+    "risk_head": ["LogisticRegression", "GBDT_small"],
+    "operating_point_selection": "maximize_coverage_subject_to_beta"
+  },
+  "seeds": {
+    "global": 20250921,
+    "split": 20250921,
+    "train": 20250922,
+    "calib": 20250923,
+    "ablation": 20250924
+  },
+  "metrics": {
+    "classification": ["macro_f1", "weighted_f1", "confusion_matrix"],
+    "selective_automation": ["coverage_risk_curve", "reject_auroc"],
+    "reliability": ["ece", "ace", "reliability_plot"],
+    "regression_interval": ["mae", "rmse", "nominal_vs_empirical_coverage", "mean_interval_width", "tolerance_pass_rate"],
+    "efficiency": ["latency_per_hole_ms", "qps", "training_time_hours"],
+    "statistics": {
+      "ci": "95% bootstrap or permutation",
+      "effect_sizes": ["Cliffs_delta", "Hedges_g"]
+    }
+  },
+  "artifacts": {
+    "structure": [
+      "raw/",
+      "clean/",
+      "splits/{LODO,TO}/split_k/{train.txt,calib.txt,test.txt}",
+      "candidates/",
+      "features_summary.parquet",
+      "refined_params.parquet",
+      "t2t_table.parquet",
+      "base_preds.parquet",
+      "calibrated_probs.parquet",
+      "typicality.parquet",
+      "risk_scores.parquet",
+      "operating_point.json",
+      "exec_decisions.parquet",
+      "metrics/",
+      "figures/",
+      "ablation/",
+      "casebook/",
+      "release_bundle/",
+      "paper_assets/",
+      "CONFIG.md",
+      "CONFIG.json"
+    ],
+    "figures": {
+      "Fig1_Framework": "figures/Fig1_Framework.pdf",
+      "Fig2_HoleCard": "figures/Fig2_HoleCard.pdf",
+      "Fig3_Conformal": "figures/Fig3_Conformal_{protocol}.pdf",
+      "Fig4_CoverageRisk": "figures/Fig4_CoverageRisk_{protocol}_overall.pdf",
+      "Fig5_Reliability": "figures/Fig5_Reliability_{protocol}.pdf",
+      "Fig6_RejectAUROC": "figures/Fig6_RejectAUROC_{protocol}.pdf",
+      "Fig7_LabelPerfCurve": "figures/Fig7_LabelPerfCurve.pdf",
+      "Fig8_FailureCases": "figures/Fig8_FailureCases.pdf"
+    },
+    "main_table_csv": "paper_assets/Table_Main.csv",
+    "retention_days_min": 180
+  },
+  "standards_mapping": {
+    "file": "release_bundle/standards.json",
+    "rule": "intervals must be fully contained within standard tolerances to map; otherwise NeedHuman"
+  },
+  "container_run_contract": {
+    "gpu_flag": "--gpus all",
+    "mounts": {
+      "raw": { "path": "raw/", "readonly": true },
+      "work": { "path": ".", "readonly": false }
+    },
+    "log_level": "INFO",
+    "save_all_csv_pdf": true
+  },
+  "determinism": {
+    "torch_use_deterministic_algorithms": true,
+    "cublas_workspace_config": ":4096:8",
+    "forbid_nondeterministic_ops": true,
+    "resampling_seed_fixed": true
+  },
+  "governance": {
+    "data_origin": "public",
+    "no_new_annotations": true,
+    "synthetic_geometries_usage": "recall stress only; excluded from train/calib/test metrics",
+    "licenses_compatible_with_publication": true
+  },
+  "contacts": {
+    "corresponding_author": "<to_fill>",
+    "data_steward": "<to_fill>"
+  }
+}
